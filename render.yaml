@@ -1,0 +1,23 @@
+# Render blueprint. A persistent disk needs a paid plan; on the free plan the
+# database resets whenever the service restarts (see README > Keeping your data safe).
+services:
+  - type: web
+    name: madpotatosystem
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 120
+    healthCheckPath: /healthz
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: COOKIE_SECURE
+        value: "1"
+      - key: DB_PATH
+        value: /var/data/mapo.db
+    disk:
+      name: mapo-data
+      mountPath: /var/data
+      sizeGB: 1
